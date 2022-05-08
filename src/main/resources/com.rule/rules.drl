@@ -1,0 +1,29 @@
+package com.rule
+import com.javatpoint.model.shared.BookingResSharedModel
+import com.javatpoint.service.MoviePlatformDroolsService
+
+global MoviePlatformDroolsService MoviePlatformDroolsService
+
+rule "50% discount for 3rd ticket onwards"
+	when 
+		movieObject: BookingResSharedModel(ticketAsked>3)
+	then
+		movieObject.setFinalPrice((3*movieObject.getFinalPrice()) + (Math.round(movieObject.getFinalPrice()*(50.0f/100.0f)))*(movieObject.getTicketAsked()-3));
+		movieObject.setDiscountReason("Discount on 3rd Ticket onwards");
+	end
+
+rule "no discount"
+	when 
+		movieObject: BookingResSharedModel(ticketAsked<4 && movieObject.getShowtime().getHours() >= 12 && movieObject.getShowtime().getHours() < 16)
+	then
+		movieObject.setFinalPrice((Math.round(movieObject.getFinalPrice()*(100.0f/100.0f)))*movieObject.getTicketAsked());
+		movieObject.setDiscountReason("No Discount");
+	end
+	
+rule "Afternoon shows 20% discount"
+	when 
+		movieObject: BookingResSharedModel(movieObject.getShowtime().getHours() >= 12 && movieObject.getShowtime().getHours() < 16)
+	then
+		movieObject.setFinalPrice(Math.round(movieObject.getFinalPrice()*(80.0f/100.0f)));
+		movieObject.setDiscountReason("Afternoon show Discount");
+	end
